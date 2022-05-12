@@ -720,6 +720,33 @@ L.Control.NotebookbarWriter = L.Control.Notebookbar.extend({
 				'type': 'bigtoolitem',
 				'text': _UNO('.uno:TransformDialog'),
 				'command': '.uno:TransformDialog'
+			},
+			{
+				'id': 'format-name-description',
+				'type': 'container',
+				'children': [
+					{
+						'type': 'toolbox',
+						'children': [
+							{
+								'type': 'toolitem',
+								'text': _UNO('.uno:NameGroup', 'text'),
+								'command': '.uno:NameGroup'
+							}
+						]
+					},
+					{
+						'type': 'toolbox',
+						'children': [
+							{
+								'type': 'toolitem',
+								'text': _UNO('.uno:ObjectTitleDescription', 'text'),
+								'command': '.uno:ObjectTitleDescription'
+							}
+						]
+					}
+				],
+				'vertical': 'true'
 			}
 		];
 

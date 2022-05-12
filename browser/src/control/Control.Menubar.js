@@ -256,7 +256,9 @@ L.Control.Menubar = L.Control.extend({
 				{type: 'separator'},
 				{uno: '.uno:TransformDialog'},
 				{uno: '.uno:FormatLine'},
-				{uno: '.uno:FormatArea'}
+				{uno: '.uno:FormatArea'},
+				{uno: '.uno:NameGroup'},
+				{uno: '.uno:ObjectTitleDescription'}
 			]},
 			{name: _UNO('.uno:TableMenu', 'text'), type: 'menu', id: 'table', menu: [
 				{uno: '.uno:InsertTable'},
