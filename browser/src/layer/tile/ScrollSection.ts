@@ -1,54 +1,31 @@
 /* See CanvasSectionContainer.ts for explanations. */
 
-// We are using typescript without modules and compile files individually for now. Typescript needs to know about global definitions.
 // We will keep below definitions until we use tsconfig.json.
 declare var L: any;
 declare var app: any;
 
-class ScrollSection {
-	context: CanvasRenderingContext2D = null;
-	myTopLeft: Array<number> = null;
-	documentTopLeft: Array<number> = null;
-	containerObject: any = null;
-	dpiScale: number = null;
-	name: string = null;
-	backgroundColor: string = null;
-	borderColor: string = null;
-	boundToSection: string = null;
-	anchor: Array<string> = new Array(0);
-	position: Array<number> = new Array(0);
-	size: Array<number> = new Array(0);
-	expand: Array<string> = new Array(0);
-	isLocated: boolean = false;
-	processingOrder: number = null;
-	drawingOrder: number = null;
-	zIndex: number = null;
-	interactable: boolean = true;
-	isAnimating: boolean = false; // This variable is set by the CanvasSectionContainer class.
-	windowSection = true; // This section covers the entire canvas.
-	sectionProperties: any = {};
-
-	// Implemented by container.
-	stopPropagating: () => void;
-
-	// Implemented by container.
-	startAnimating: (options: any) => boolean;
-
-	// Implemented by container.
-	resetAnimation: () => void;
-
-	// Implemented by container.
-	isCalcRTL: () => boolean;
+class ScrollSection extends CanvasSectionObject {
 
 	map: any;
 	autoScrollTimer: any;
 	pendingScrollEvent: any = null;
 
 	constructor () {
-		this.name = L.CSections.Scroll.name;
-		this.processingOrder = L.CSections.Scroll.processingOrder;
-		this.drawingOrder = L.CSections.Scroll.drawingOrder;
-		this.zIndex = L.CSections.Scroll.zIndex;
+		super({
+			name: L.CSections.Scroll.name,
+			anchor: [],
+			position: [],
+			size: [],
+			expand: '',
+			processingOrder: L.CSections.Scroll.processingOrder,
+			drawingOrder: L.CSections.Scroll.drawingOrder,
+			zIndex: L.CSections.Scroll.zIndex,
+			interactable: true,
+		});
+
+		this.isAnimating = false;
+		this.windowSection = true; // This section covers the entire canvas.
+		this.sectionProperties = {};
 
 		this.map = L.Map.THIS;
 
@@ -724,7 +701,7 @@ class ScrollSection {
 	}
 
 	public onMouseMove (position: Array<number>, dragDistance: Array<number>, e: MouseEvent) {
-		if (this.sectionProperties.clickScrollVertical && this.containerObject.draggingSomething) {
+		if (this.sectionProperties.clickScrollVertical && this.containerObject.isDraggingSomething()) {
 			if (!this.sectionProperties.previousDragDistance) {
 				this.sectionProperties.previousDragDistance = [0, 0];
 			}
@@ -744,7 +721,7 @@ class ScrollSection {
 			e.stopPropagation(); // Don't propagate to map.
 			this.stopPropagating(); // Don't propagate to bound sections.
 		}
-		else if (this.sectionProperties.clickScrollHorizontal && this.containerObject.draggingSomething) {
+		else if (this.sectionProperties.clickScrollHorizontal && this.containerObject.isDraggingSomething()) {
 			if (!this.sectionProperties.previousDragDistance) {
 				this.sectionProperties.previousDragDistance = [0, 0];
 			}
@@ -875,8 +852,13 @@ class ScrollSection {
 
 		// Unfortunately, dragging outside the map doesn't work for the map element.
 		// We will keep this until we remove leaflet.
-		else if (L.Map.THIS.mouse && L.Map.THIS.mouse._mouseDown && this.containerObject.targetBoundSectionListContains(L.CSections.Tiles.name) && (<any>window).mode.isDesktop() && this.containerObject.draggingSomething && L.Map.THIS._docLayer._docType === 'spreadsheet') {
-			var temp = this.containerObject.positionOnMouseUp;
+		else if (L.Map.THIS.mouse && L.Map.THIS.mouse._mouseDown
+			&& this.containerObject.targetBoundSectionListContains(L.CSections.Tiles.name)
+			&& (<any>window).mode.isDesktop()
+			&& this.containerObject.isDraggingSomething()
+			&& L.Map.THIS._docLayer._docType === 'spreadsheet') {
+
+			var temp = this.containerObject.getPositionOnMouseUp();
 			var tempPos = [temp[0] * app.dpiScale, temp[1] * app.dpiScale];
 			var docTopLeft = app.sectionContainer.getDocumentTopLeft();
 			tempPos = [tempPos[0] + docTopLeft[0], tempPos[1] + docTopLeft[1]];
@@ -928,17 +910,6 @@ class ScrollSection {
 			this.performHorizontalScroll(delta[0]);
 		}
 	}
-
-	public onMouseEnter () { return; }
-	public onClick () { return; }
-	public onDoubleClick () { return; }
-	public onContextMenu () { return; }
-	public onLongPress () { return; }
-	public onMultiTouchStart () { return; }
-	public onMultiTouchMove () { return; }
-	public onMultiTouchEnd () { return; }
-	public onResize () { return; }
-	public onNewDocumentTopLeft () { return; }
 }
 
 L.getNewScrollSection = function () {
