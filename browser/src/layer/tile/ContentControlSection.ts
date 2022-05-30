@@ -1,37 +1,37 @@
 declare var L: any;
 declare var app: any;
 
-app.definitions.ContentControlSection =
+namespace cool {
 
-class ContentControlSection {
-    context: CanvasRenderingContext2D = null;
-    processingOrder: number = L.CSections.ContentControl.processingOrder;
-	drawingOrder: number = L.CSections.ContentControl.drawingOrder;
-	zIndex: number = L.CSections.ContentControl.zIndex;
-    name: string = L.CSections.ContentControl.name;
-	interactable: boolean = false;
-    documentObject: boolean = true;
-	sectionProperties: any = {};
-	myTopLeft: Array<number> = [0, 0];
-	position: Array<number> = [0, 0];
-	size: Array<number> = new Array(0);
-	expand: Array<string> = new Array(0);
-	anchor: Array<any> = new Array(0);
+export class ContentControlSection extends CanvasSectionObject {
 
-	// Implemented by section container. Document objects only.
-	setPosition: (x: number, y: number) => void;
-
-	public onInitialize() {
+	public onInitialize(): void {
 		this.sectionProperties.rectangles = [];
 		this.sectionProperties.strokeStyle = '#000000';
 	}
 
 	constructor() {
+		super({
+			processingOrder: L.CSections.ContentControl.processingOrder,
+			drawingOrder: L.CSections.ContentControl.drawingOrder,
+			zIndex: L.CSections.ContentControl.zIndex,
+			name: L.CSections.ContentControl.name,
+			interactable: false,
+			sectionProperties: {},
+			position: [0, 0],
+			size: [],
+			expand: '',
+			anchor: [],
+		});
+
+		this.myTopLeft = [0, 0];
+		this.documentObject = true;
 		this.sectionProperties.rectangles = null;
 		this.sectionProperties.strokeStyle = null;
 	}
 
-	drawContentControl(json: any) {
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+	drawContentControl(json: any): void {
 		if (json.action === 'show')	{
 			//convert string to number coordinates
 			var matches = json.rectangles.match(/\d+/g);
@@ -47,7 +47,7 @@ class ContentControlSection {
 		app.sectionContainer.requestReDraw();
 	}
 
-	private setPositionAndSize () {
+	private setPositionAndSize ():void {
 		var rectangles = this.sectionProperties.rectangles;
 		var xMin: number = Infinity, yMin: number = Infinity, xMax: number = 0, yMax: number = 0;
 		for (var i = 0; i < rectangles.length; i++) {
@@ -76,11 +76,11 @@ class ContentControlSection {
 			this.size[0] = 5;
 	}
 
-	public onResize () {
+	public onResize (): void {
 		this.setPositionAndSize();
 	}
 
-	public onDraw() {
+	public onDraw(): void {
 		var rectangles = this.sectionProperties.rectangles;
 
 		for (var i: number = 0; i < rectangles.length; i++) {
@@ -100,7 +100,12 @@ class ContentControlSection {
 		}
 	}
 
-	public onNewDocumentTopLeft () {
+	public onNewDocumentTopLeft (): void {
 		this.setPositionAndSize();
 	}
-};
+}
+
+}
+
+app.definitions.ContentControlSection = cool.ContentControlSection;
+
